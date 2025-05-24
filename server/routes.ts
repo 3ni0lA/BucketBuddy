@@ -13,9 +13,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
+      // For local authentication, req.user is already the full user object
+      // Strip the password hash before sending to client
+      const { passwordHash, ...userWithoutPassword } = req.user;
+      res.json(userWithoutPassword);
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
@@ -25,7 +26,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Bucket list routes
   app.get('/api/bucket-list', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id; // For local auth, use user.id directly
       const filter = req.query.filter as string | undefined;
       const search = req.query.search as string | undefined;
       
@@ -39,7 +40,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/bucket-list/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id; // For local auth, use user.id directly
       const id = parseInt(req.params.id);
       
       if (isNaN(id)) {
@@ -61,7 +62,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/bucket-list', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id; // For local auth, use user.id directly
       
       // Validate request body
       const validatedData = insertBucketListItemSchema.parse(req.body);
@@ -81,7 +82,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch('/api/bucket-list/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id; // For local auth, use user.id directly
       const id = parseInt(req.params.id);
       
       if (isNaN(id)) {
@@ -111,7 +112,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete('/api/bucket-list/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id; // For local auth, use user.id directly
       const id = parseInt(req.params.id);
       
       if (isNaN(id)) {

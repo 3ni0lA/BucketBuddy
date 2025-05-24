@@ -2,10 +2,20 @@ import { useAuth } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Button } from "@/components/ui/button";
 import { Footer } from "@/components/Footer";
-import { CheckSquare, LogIn, Loader2 } from "lucide-react";
+import { AuthForm } from "@/components/AuthForm";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { useTheme } from "@/hooks/useTheme";
+import { CheckSquare, LogIn, Loader2, Moon, Sun } from "lucide-react";
+import { useState } from "react";
 
 export default function Landing() {
   const { isLoading } = useAuth();
+  const { theme, setTheme } = useTheme();
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
+
+  const toggleTheme = () => {
+    setTheme(theme === "light" ? "dark" : "light");
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -15,21 +25,39 @@ export default function Landing() {
             <CheckSquare className="h-6 w-6 text-primary mr-2" />
             <span className="font-bold text-xl">BucketList</span>
           </div>
-          <Button asChild>
-            {isLoading ? (
-              <div className="flex items-center">
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Loading...
-              </div>
-            ) : (
-              <a href="/api/login" className="flex items-center">
-                <LogIn className="mr-2 h-4 w-4" />
-                Sign In
-              </a>
-            )}
-          </Button>
+          <div className="flex items-center space-x-4">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={toggleTheme} 
+              className="mr-2"
+              aria-label="Toggle theme"
+            >
+              {theme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+            </Button>
+            <Button onClick={() => setShowAuthDialog(true)}>
+              {isLoading ? (
+                <div className="flex items-center">
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Loading...
+                </div>
+              ) : (
+                <div className="flex items-center">
+                  <LogIn className="mr-2 h-4 w-4" />
+                  Sign In
+                </div>
+              )}
+            </Button>
+          </div>
         </div>
       </header>
+
+      {/* Authentication Dialog */}
+      <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
+        <DialogContent className="sm:max-w-md">
+          <AuthForm />
+        </DialogContent>
+      </Dialog>
       
       <main className="flex-1 bg-gray-50 dark:bg-gray-900">
         <section className="py-16 md:py-24 lg:py-32">

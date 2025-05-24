@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
@@ -9,15 +10,57 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Sun, Moon, Menu, CheckSquare } from "lucide-react";
+import { Sun, Moon, Menu, CheckSquare, X, LogOut } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 export function Navbar() {
   const { user } = useAuth();
   const { theme, setTheme } = useTheme();
   const [location] = useLocation();
+  const { toast } = useToast();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   const toggleTheme = () => {
     setTheme(theme === "light" ? "dark" : "light");
+  };
+
+  // Logout mutation
+  const logoutMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest("GET", "/api/logout");
+    },
+    onSuccess: () => {
+      toast({
+        title: "Logged out successfully",
+        description: "You have been logged out of your account.",
+      });
+      // Refresh the page to update auth state
+      window.location.href = "/";
+    },
+    onError: (error) => {
+      toast({
+        title: "Logout failed",
+        description: error instanceof Error ? error.message : "An error occurred during logout",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleLogout = () => {
+    logoutMutation.mutate();
+  };
+
+  const getInitials = () => {
+    if (!user) return "U";
+    const firstInitial = user.firstName?.[0] || "";
+    const lastInitial = user.lastName?.[0] || "";
+    return firstInitial + lastInitial || user.email?.[0]?.toUpperCase() || "U";
+  };
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
   };
 
   return (
@@ -53,9 +96,12 @@ export function Navbar() {
               size="icon" 
               onClick={toggleTheme} 
               className="mr-4"
+              aria-label="Toggle theme"
             >
-              {theme === "light" ? <Moon className="h-5 w-5 text-indigo-300" /> : <Sun className="h-5 w-5 text-amber-500" />}
-              <span className="sr-only">Toggle theme</span>
+              {theme === "light" ? 
+                <Moon className="h-5 w-5 text-indigo-500" /> : 
+                <Sun className="h-5 w-5 text-yellow-400" />
+              }
             </Button>
             
             {user && (
@@ -68,7 +114,7 @@ export function Navbar() {
                         alt={`${user.firstName || ""} ${user.lastName || ""}`} 
                         className="object-cover"
                       />
-                      <AvatarFallback>{(user.firstName?.[0] || "") + (user.lastName?.[0] || "U")}</AvatarFallback>
+                      <AvatarFallback>{getInitials()}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
@@ -83,16 +129,19 @@ export function Navbar() {
                       <a className="w-full">Settings</a>
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <a href="/api/logout" className="w-full">Sign out</a>
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <span className="w-full flex items-center">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Sign out
+                    </span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
             
             <div className="sm:hidden ml-3">
-              <Button variant="ghost" size="icon">
-                <Menu className="h-5 w-5" />
+              <Button variant="ghost" size="icon" onClick={toggleMobileMenu}>
+                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </Button>
             </div>
           </div>
@@ -100,7 +149,7 @@ export function Navbar() {
       </div>
       
       {/* Mobile menu */}
-      <div className="sm:hidden hidden" id="mobile-menu">
+      <div className={`sm:hidden ${mobileMenuOpen ? 'block' : 'hidden'}`}>
         <div className="pt-2 pb-3 space-y-1">
           <Link href="/">
             <a className={`${location === "/" ? "bg-primary text-white" : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"} block pl-3 pr-4 py-2 text-base font-medium`}>
@@ -117,6 +166,13 @@ export function Navbar() {
               Inspiration
             </a>
           </Link>
+          <button 
+            onClick={handleLogout}
+            className="flex w-full items-center text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 pl-3 pr-4 py-2 text-base font-medium"
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            Sign out
+          </button>
         </div>
       </div>
     </nav>
