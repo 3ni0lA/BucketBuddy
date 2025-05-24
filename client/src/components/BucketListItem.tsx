@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { format } from "date-fns";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -9,11 +9,21 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MoreVertical, CheckCircle, Pencil, Trash2 } from "lucide-react";
+import { 
+  Calendar, 
+  MoreVertical, 
+  CheckCircle, 
+  Pencil, 
+  Trash2,
+  Flag,
+  Tag,
+  Clock
+} from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { BucketListItem as BucketListItemType } from "@shared/schema";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface BucketListItemProps {
   item: BucketListItemType;
@@ -23,6 +33,7 @@ interface BucketListItemProps {
 export function BucketListItem({ item, onEdit }: BucketListItemProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [showFullDescription, setShowFullDescription] = useState(false);
   
   // Status badge variant mapper
   const getStatusVariant = (status: string) => {
@@ -31,6 +42,24 @@ export function BucketListItem({ item, onEdit }: BucketListItemProps) {
       case "In Progress": return "inProgress";
       case "Completed": return "completed";
       default: return "default";
+    }
+  };
+
+  // Priority badge variant mapper
+  const getPriorityVariant = (priority: string | null | undefined) => {
+    switch (priority) {
+      case "Low": return "outline";
+      case "Medium": return "secondary";
+      case "High": return "destructive";
+      default: return "secondary";
+    }
+  };
+
+  // Priority icon
+  const getPriorityIcon = (priority: string | null | undefined) => {
+    switch (priority) {
+      case "High": return <Flag className="h-3 w-3 mr-1" />;
+      default: return null;
     }
   };
   
@@ -45,6 +74,16 @@ export function BucketListItem({ item, onEdit }: BucketListItemProps) {
         return "https://images.unsplash.com/photo-1525201548942-d8732f6617a0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450";
       case "Education":
         return "https://images.unsplash.com/photo-1519904981063-b0cf448d479e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450";
+      case "Health":
+        return "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450";
+      case "Finance":
+        return "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450";
+      case "Creativity":
+        return "https://images.unsplash.com/photo-1513364776144-60967b0f800f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450";
+      case "Skill":
+        return "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450";
+      case "Relationships":
+        return "https://images.unsplash.com/photo-1541943181603-d8fe267a5dcf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450";
       default:
         return "https://images.unsplash.com/photo-1483347756197-71ef80e95f73?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450";
     }
@@ -100,8 +139,19 @@ export function BucketListItem({ item, onEdit }: BucketListItemProps) {
     }
   });
 
+  // Toggle description expansion
+  const toggleDescription = () => {
+    setShowFullDescription(!showFullDescription);
+  };
+
+  // Handle long descriptions
+  const shortenDescription = (desc: string) => {
+    if (!desc) return "";
+    return desc.length > 100 ? desc.substring(0, 100) + "..." : desc;
+  };
+
   return (
-    <Card className="theme-transition card-hover overflow-hidden shadow rounded-lg border border-gray-200 dark:border-gray-700">
+    <Card className="theme-transition card-hover overflow-hidden shadow rounded-lg border border-gray-200 dark:border-gray-700 flex flex-col h-full">
       {/* Image */}
       <div className="w-full h-48 overflow-hidden">
         <img 
@@ -111,11 +161,20 @@ export function BucketListItem({ item, onEdit }: BucketListItemProps) {
         />
       </div>
       
-      <CardContent className="p-6">
+      <CardContent className="p-6 flex-grow">
         <div className="flex items-center justify-between mb-4">
-          <Badge variant={getStatusVariant(item.status)}>
-            {item.status}
-          </Badge>
+          <div className="flex gap-2">
+            <Badge variant={getStatusVariant(item.status)}>
+              {item.status}
+            </Badge>
+            
+            {item.priority && (
+              <Badge variant={getPriorityVariant(item.priority)} className="flex items-center">
+                {getPriorityIcon(item.priority)}
+                {item.priority} priority
+              </Badge>
+            )}
+          </div>
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -147,9 +206,24 @@ export function BucketListItem({ item, onEdit }: BucketListItemProps) {
         
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{item.title}</h3>
         
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{item.description}</p>
+        {item.description && (
+          <div className="mb-4">
+            <p 
+              className="text-sm text-gray-500 dark:text-gray-400 cursor-pointer"
+              onClick={toggleDescription}
+            >
+              {showFullDescription ? item.description : shortenDescription(item.description)}
+              {item.description.length > 100 && !showFullDescription && (
+                <span className="text-primary font-medium ml-1">Read more</span>
+              )}
+              {showFullDescription && (
+                <span className="text-primary font-medium ml-1">Show less</span>
+              )}
+            </p>
+          </div>
+        )}
         
-        <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+        <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-2">
           {item.status === "Completed" && item.completionDate ? (
             <>
               <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
@@ -157,12 +231,59 @@ export function BucketListItem({ item, onEdit }: BucketListItemProps) {
             </>
           ) : (
             <>
-              <Calendar className="mr-2 h-4 w-4" />
+              <Clock className="mr-2 h-4 w-4" />
               <span>Target: {item.targetDate ? format(new Date(item.targetDate), "MMMM yyyy") : "Ongoing"}</span>
             </>
           )}
         </div>
+
+        {item.category && (
+          <div className="mb-2">
+            <Badge variant="outline" className="text-xs">
+              {item.category}
+            </Badge>
+          </div>
+        )}
       </CardContent>
+
+      {/* Tags section */}
+      {item.tags && item.tags.length > 0 && (
+        <CardFooter className="px-6 py-3 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex flex-wrap gap-2">
+            <TooltipProvider>
+              {item.tags.slice(0, 3).map((tag, index) => (
+                <Tooltip key={index}>
+                  <TooltipTrigger>
+                    <Badge variant="secondary" className="bg-opacity-70 flex items-center gap-1">
+                      <Tag className="h-3 w-3" />
+                      {tag}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{tag}</p>
+                  </TooltipContent>
+                </Tooltip>
+              ))}
+              {item.tags.length > 3 && (
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Badge variant="outline" className="cursor-pointer">
+                      +{item.tags.length - 3}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <div className="space-y-1">
+                      {item.tags.slice(3).map((tag, index) => (
+                        <p key={index}>{tag}</p>
+                      ))}
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </TooltipProvider>
+          </div>
+        </CardFooter>
+      )}
     </Card>
   );
 }
