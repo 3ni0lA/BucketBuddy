@@ -11,6 +11,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { relations } from "drizzle-orm";
 
 // Session storage table for Replit Auth
 export const sessions = pgTable(
@@ -48,6 +49,8 @@ export const bucketListItems = pgTable("bucket_list_items", {
   targetDate: date("target_date"),
   completionDate: date("completion_date"),
   category: text("category"),
+  priority: text("priority").default("Medium"), // Low, Medium, High
+  tags: text("tags").array(), // Store tags as an array of strings for now
   imageUrl: text("image_url"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -60,6 +63,13 @@ export type InsertBucketListItem = z.infer<typeof insertBucketListItemSchema>;
 export type BucketListItem = typeof bucketListItems.$inferSelect;
 
 // Define relations between tables
-export const bucketListItemsRelations = {
-  user: { tableName: "users", relationName: "user" },
-};
+export const usersRelations = relations(users, ({ many }) => ({
+  bucketListItems: many(bucketListItems),
+}));
+
+export const bucketListItemsRelations = relations(bucketListItems, ({ one }) => ({
+  user: one(users, {
+    fields: [bucketListItems.userId],
+    references: [users.id],
+  }),
+}));
