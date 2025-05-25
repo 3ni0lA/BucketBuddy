@@ -72,6 +72,8 @@ const formSchema = insertBucketListItemSchema.extend({
   description: z.string().max(500, "Description must be less than 500 characters").optional(),
   tags: z.array(z.string()).optional(),
   priority: z.string().optional(),
+  targetDate: z.union([z.date(), z.string(), z.null()]).optional(),
+  completionDate: z.union([z.date(), z.string(), z.null()]).optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -208,19 +210,28 @@ export function AddBucketItemModal({ open, onOpenChange, editItem }: AddBucketIt
   const onSubmit = (values: FormValues) => {
     // Process date values to ensure they're sent as strings
     const processedValues = {
-      ...values,
-      // Convert Date objects to ISO string format (YYYY-MM-DD)
-      targetDate: values.targetDate 
-        ? (typeof values.targetDate === 'object' && values.targetDate.toISOString 
-            ? values.targetDate.toISOString().split('T')[0]
-            : values.targetDate)
-        : undefined,
-      completionDate: values.completionDate
-        ? (typeof values.completionDate === 'object' && values.completionDate.toISOString
-            ? values.completionDate.toISOString().split('T')[0]
-            : values.completionDate)
-        : undefined
+      ...values
     };
+    
+    // Handle target date
+    if (values.targetDate) {
+      // Check if it's a Date object by looking for toISOString method
+      if (typeof values.targetDate === 'object' && 'toISOString' in values.targetDate) {
+        // Convert Date object to string in YYYY-MM-DD format
+        processedValues.targetDate = values.targetDate.toISOString().split('T')[0];
+      } 
+      // Otherwise, keep it as is - it's already a string
+    }
+    
+    // Handle completion date
+    if (values.completionDate) {
+      // Check if it's a Date object by looking for toISOString method
+      if (typeof values.completionDate === 'object' && 'toISOString' in values.completionDate) {
+        // Convert Date object to string in YYYY-MM-DD format
+        processedValues.completionDate = values.completionDate.toISOString().split('T')[0];
+      }
+      // Otherwise, keep it as is - it's already a string
+    }
 
     if (isEditing) {
       updateMutation.mutate(processedValues);

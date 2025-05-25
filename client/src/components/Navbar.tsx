@@ -73,20 +73,17 @@ export function Navbar() {
               <span className="font-bold text-xl">BucketList</span>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-              <Link href="/">
-                <a className={`${location === "/" ? "border-primary text-gray-900 dark:text-white" : "border-transparent text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white"} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}>
-                  Dashboard
-                </a>
+              <Link href="/" 
+                className={`${location === "/" ? "border-primary text-gray-900 dark:text-white" : "border-transparent text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white"} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}>
+                Dashboard
               </Link>
-              <Link href="/stats">
-                <a className={`${location === "/stats" ? "border-primary text-gray-900 dark:text-white" : "border-transparent text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white"} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}>
-                  Statistics
-                </a>
+              <Link href="/stats" 
+                className={`${location === "/stats" ? "border-primary text-gray-900 dark:text-white" : "border-transparent text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white"} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}>
+                Statistics
               </Link>
-              <Link href="/inspiration">
-                <a className={`${location === "/inspiration" ? "border-primary text-gray-900 dark:text-white" : "border-transparent text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white"} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}>
-                  Inspiration
-                </a>
+              <Link href="/inspiration" 
+                className={`${location === "/inspiration" ? "border-primary text-gray-900 dark:text-white" : "border-transparent text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white"} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}>
+                Inspiration
               </Link>
             </div>
           </div>
@@ -120,14 +117,10 @@ export function Navbar() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem>
-                    <Link href="/profile">
-                      <a className="w-full">Your Profile</a>
-                    </Link>
+                    <Link href="/profile">Your Profile</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
-                    <Link href="/settings">
-                      <a className="w-full">Settings</a>
-                    </Link>
+                    <Link href="/settings">Settings</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout}>
                     <span className="w-full flex items-center">
@@ -151,20 +144,17 @@ export function Navbar() {
       {/* Mobile menu */}
       <div className={`sm:hidden ${mobileMenuOpen ? 'block' : 'hidden'}`}>
         <div className="pt-2 pb-3 space-y-1">
-          <Link href="/">
-            <a className={`${location === "/" ? "bg-primary text-white" : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"} block pl-3 pr-4 py-2 text-base font-medium`}>
-              Dashboard
-            </a>
+          <Link href="/"
+            className={`${location === "/" ? "bg-primary text-white" : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"} block pl-3 pr-4 py-2 text-base font-medium`}>
+            Dashboard
           </Link>
-          <Link href="/stats">
-            <a className={`${location === "/stats" ? "bg-primary text-white" : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"} block pl-3 pr-4 py-2 text-base font-medium`}>
-              Statistics
-            </a>
+          <Link href="/stats"
+            className={`${location === "/stats" ? "bg-primary text-white" : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"} block pl-3 pr-4 py-2 text-base font-medium`}>
+            Statistics
           </Link>
-          <Link href="/inspiration">
-            <a className={`${location === "/inspiration" ? "bg-primary text-white" : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"} block pl-3 pr-4 py-2 text-base font-medium`}>
-              Inspiration
-            </a>
+          <Link href="/inspiration"
+            className={`${location === "/inspiration" ? "bg-primary text-white" : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"} block pl-3 pr-4 py-2 text-base font-medium`}>
+            Inspiration
           </Link>
           <button 
             onClick={handleLogout}
