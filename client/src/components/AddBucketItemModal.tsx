@@ -206,10 +206,26 @@ export function AddBucketItemModal({ open, onOpenChange, editItem }: AddBucketIt
   });
   
   const onSubmit = (values: FormValues) => {
+    // Process date values to ensure they're sent as strings
+    const processedValues = {
+      ...values,
+      // Convert Date objects to ISO string format (YYYY-MM-DD)
+      targetDate: values.targetDate 
+        ? (values.targetDate instanceof Date 
+            ? values.targetDate.toISOString().split('T')[0]
+            : values.targetDate)
+        : undefined,
+      completionDate: values.completionDate
+        ? (values.completionDate instanceof Date 
+            ? values.completionDate.toISOString().split('T')[0]
+            : values.completionDate)
+        : undefined
+    };
+
     if (isEditing) {
-      updateMutation.mutate(values);
+      updateMutation.mutate(processedValues);
     } else {
-      createMutation.mutate(values);
+      createMutation.mutate(processedValues);
     }
   };
   
