@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, HeartHandshake, Heart, Compass, Award, Globe, BookOpen, Lightbulb } from "lucide-react";
 import { AddBucketItemModal } from "@/components/AddBucketItemModal";
+import { AchievementBadges } from "@/components/AchievementBadges";
+import type { BucketListItem } from "@shared/schema";
 
 // Sample inspiration ideas by category
 const INSPIRATION_IDEAS = {
@@ -77,6 +80,22 @@ export default function Inspiration() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedIdea, setSelectedIdea] = useState<any>(null);
   
+  // Fetch bucket list items for badges
+  const { data: bucketListItems = [], isLoading } = useQuery<BucketListItem[]>({
+    queryKey: ['/api/bucket-list'],
+    queryFn: async () => {
+      const response = await fetch('/api/bucket-list', {
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch bucket list items');
+      }
+      
+      return response.json();
+    }
+  });
+  
   // Get a random quote
   const randomQuote = INSPIRATIONAL_QUOTES[Math.floor(Math.random() * INSPIRATIONAL_QUOTES.length)];
   
@@ -136,6 +155,20 @@ export default function Inspiration() {
                 <p className="text-right mt-2 text-gray-600 dark:text-gray-400">— {randomQuote.author}</p>
               </CardContent>
             </Card>
+            
+            {/* Achievement Badges */}
+            <div className="mb-12">
+              <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Your Achievements</h2>
+              {isLoading ? (
+                <div className="flex items-center justify-center h-32">
+                  <div className="animate-pulse text-gray-500 dark:text-gray-400">
+                    Loading achievements...
+                  </div>
+                </div>
+              ) : (
+                <AchievementBadges bucketListItems={bucketListItems} />
+              )}
+            </div>
             
             {/* Category Tabs */}
             <Tabs defaultValue="travel" value={activeTab} onValueChange={setActiveTab}>

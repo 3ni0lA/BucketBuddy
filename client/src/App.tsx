@@ -8,6 +8,9 @@ import { useAuth } from "@/hooks/useAuth";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/Landing";
 import Home from "@/pages/Home";
+import Statistics from "@/pages/Statistics";
+import Inspiration from "@/pages/Inspiration";
+import Gallery from "@/pages/Gallery";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -19,6 +22,9 @@ function Router() {
       ) : (
         <>
           <Route path="/" component={Home} />
+          <Route path="/stats" component={Statistics} />
+          <Route path="/inspiration" component={Inspiration} />
+          <Route path="/gallery" component={Gallery} />
           {/* Additional routes when authenticated */}
         </>
       )}

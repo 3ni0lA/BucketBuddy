@@ -85,6 +85,10 @@ export function Navbar() {
                 className={`${location === "/inspiration" ? "border-primary text-gray-900 dark:text-white" : "border-transparent text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white"} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}>
                 Inspiration
               </Link>
+              <Link href="/gallery" 
+                className={`${location === "/gallery" ? "border-primary text-gray-900 dark:text-white" : "border-transparent text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white"} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}>
+                Gallery
+              </Link>
             </div>
           </div>
           <div className="flex items-center">
@@ -155,6 +159,10 @@ export function Navbar() {
           <Link href="/inspiration"
             className={`${location === "/inspiration" ? "bg-primary text-white" : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"} block pl-3 pr-4 py-2 text-base font-medium`}>
             Inspiration
+          </Link>
+          <Link href="/gallery"
+            className={`${location === "/gallery" ? "bg-primary text-white" : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"} block pl-3 pr-4 py-2 text-base font-medium`}>
+            Gallery
           </Link>
           <button 
             onClick={handleLogout}
