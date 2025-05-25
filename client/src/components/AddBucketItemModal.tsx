@@ -211,12 +211,12 @@ export function AddBucketItemModal({ open, onOpenChange, editItem }: AddBucketIt
       ...values,
       // Convert Date objects to ISO string format (YYYY-MM-DD)
       targetDate: values.targetDate 
-        ? (values.targetDate instanceof Date 
+        ? (typeof values.targetDate === 'object' && values.targetDate.toISOString 
             ? values.targetDate.toISOString().split('T')[0]
             : values.targetDate)
         : undefined,
       completionDate: values.completionDate
-        ? (values.completionDate instanceof Date 
+        ? (typeof values.completionDate === 'object' && values.completionDate.toISOString
             ? values.completionDate.toISOString().split('T')[0]
             : values.completionDate)
         : undefined
