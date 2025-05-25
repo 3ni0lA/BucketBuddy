@@ -18,6 +18,7 @@ type Achievement = {
   condition: (items: BucketListItem[]) => boolean;
   level: "bronze" | "silver" | "gold";
   category?: string;
+  progress?: number;
 };
 
 export function AchievementBadges({ bucketListItems }: AchievementBadgesProps) {
@@ -56,11 +57,17 @@ export function AchievementBadges({ bucketListItems }: AchievementBadgesProps) {
       description: "Complete at least one item from each category",
       icon: <Map className="h-5 w-5" />,
       condition: (items) => {
-        const categories = [...new Set(items.map(item => item.category).filter(Boolean))];
-        const completedCategories = [...new Set(items
+        // Get unique categories with proper type handling
+        const categoriesArray = items.map(item => item.category).filter(Boolean) as string[];
+        const completedCategoriesArray = items
           .filter(item => item.status === "Completed")
           .map(item => item.category)
-          .filter(Boolean))];
+          .filter(Boolean) as string[];
+          
+        // Convert to unique arrays
+        const categories = Array.from(new Set(categoriesArray));
+        const completedCategories = Array.from(new Set(completedCategoriesArray));
+        
         return categories.length > 0 && completedCategories.length === categories.length;
       },
       level: "gold",
@@ -334,11 +341,11 @@ export function AchievementBadges({ bucketListItems }: AchievementBadgesProps) {
               <div className="w-full bg-muted rounded-full h-2">
                 <div 
                   className="bg-primary h-2 rounded-full" 
-                  style={{ width: `${selectedAchievement.progress}%` }}
+                  style={{ width: `${selectedAchievement.progress || 0}%` }}
                 ></div>
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                {selectedAchievement.progress}% complete
+                {selectedAchievement.progress || 0}% complete
               </p>
             </div>
           )}
