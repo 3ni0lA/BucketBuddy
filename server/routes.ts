@@ -1,10 +1,11 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth, isAuthenticated } from "./Auth";
 import { insertBucketListItemSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
+import { ActivityTracker } from "./analytics";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication
@@ -129,6 +130,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting bucket list item:", error);
       res.status(500).json({ message: "Failed to delete bucket list item" });
+    }
+  });
+
+  // Analytics routes
+  app.get('/api/analytics/user', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const days = parseInt(req.query.days as string) || 30;
+      
+      const analytics = await ActivityTracker.getUserAnalytics(userId, days);
+      res.json(analytics);
+    } catch (error) {
+      console.error("Error fetching user analytics:", error);
+      res.status(500).json({ message: "Failed to fetch analytics" });
+    }
+  });
+
+  app.get('/api/analytics/system', isAuthenticated, async (req: any, res) => {
+    try {
+      // You might want to add admin check here
+      const days = parseInt(req.query.days as string) || 30;
+      
+      const analytics = await ActivityTracker.getSystemAnalytics(days);
+      res.json(analytics);
+    } catch (error) {
+      console.error("Error fetching system analytics:", error);
+      res.status(500).json({ message: "Failed to fetch system analytics" });
+    }
+  });
+
+  // Manual activity logging endpoint (for client-side events)
+  app.post('/api/analytics/track', isAuthenticated, async (req: any, res) => {
+    try {
+      const { action, resourceType, resourceId, metadata } = req.body;
+      
+      await ActivityTracker.logActivity({
+        userId: req.user.id,
+        action,
+        resourceType,
+        resourceId,
+        sessionId: req.sessionID,
+        req,
+        metadata,
+      });
+      
+      res.status(204).end();
+    } catch (error) {
+      console.error("Error logging manual activity:", error);
+      res.status(500).json({ message: "Failed to log activity" });
     }
   });
 

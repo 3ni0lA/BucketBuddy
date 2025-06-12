@@ -1,5 +1,6 @@
 import passport from "passport";
-import { Strategy as LocalStrategy } from "passport-local";
+import { Strategy as LocalStrategy } from 'passport-local';
+import { Strategy as GitHubStrategy } from 'passport-github2';
 import session from "express-session";
 import bcrypt from "bcryptjs";
 import connectPg from "connect-pg-simple";
@@ -135,18 +136,24 @@ export async function setupAuth(app: Express) {
   });
 
   app.post("/api/login", (req, res, next) => {
-    passport.authenticate("local", (err, user, info) => {
+   passport.authenticate("local", (err: Error | null, user: any | false, info: { message?: string } | undefined) => {
+      // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // This line is where the fix is applied.
       if (err) {
         return next(err);
       }
       if (!user) {
-        return res.status(401).json({ message: info.message || "Authentication failed" });
+        // info.message might be undefined, so we use optional chaining or a fallback
+        return res.status(401).json({ message: info?.message || "Authentication failed" });
       }
+      // If user is authenticated, req.login expects a User object,
+      // so ensure 'user' has the properties you expect, or define a proper type for it.
       req.login(user, (err) => {
         if (err) {
           return next(err);
         }
-        return res.json({ 
+        // Assuming 'user' now has 'id', 'email', etc. after successful login
+        return res.json({
           id: user.id,
           email: user.email,
           firstName: user.firstName,
@@ -156,6 +163,7 @@ export async function setupAuth(app: Express) {
       });
     })(req, res, next);
   });
+
 
   app.get("/api/logout", (req, res) => {
     req.logout(() => {
