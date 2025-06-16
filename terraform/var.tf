@@ -88,3 +88,21 @@ variable "supabase_service_key" {
   default     = ""
   sensitive   = true
 }
+
+# GitHub Configuration for CodePipeline
+variable "github_owner" {
+  description = "GitHub repository owner (username or organization)"
+  type        = string
+}
+
+variable "github_repo" {
+  description = "GitHub repository name"
+  type        = string
+}
+
+variable "github_branch" {
+  description = "GitHub branch to deploy from"
+  type        = string
+  default     = "main"
+}
+

@@ -1,0 +1,50 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 18
+    commands:
+      - echo Installing global dependencies...
+      - npm install -g pm2
+  
+  pre_build:
+    commands:
+      - echo Installing project dependencies...
+      - npm ci
+      - echo Checking Node.js and npm versions
+      - node --version
+      - npm --version
+  
+  build:
+    commands:
+      - echo Building the application...
+      - npm run build
+      - echo Build completed successfully
+      
+  post_build:
+    commands:
+      - echo Build phase completed
+      - echo Preparing deployment artifacts...
+      - ls -la
+
+artifacts:
+  files:
+    - '**/*'
+  exclude-paths:
+    - node_modules/**/*
+    - .git/**/*
+    - '*.md'
+    - 'terraform/**/*'
+    - '.env.local'
+    - '.env.development'
+    - 'coverage/**/*'
+    - 'test/**/*'
+    - 'tests/**/*'
+    - '*.test.js'
+    - '*.spec.js'
+
+cache:
+  paths:
+    - node_modules/**/*
+
