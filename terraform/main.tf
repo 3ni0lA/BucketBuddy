@@ -46,6 +46,17 @@ resource "random_id" "bucket_suffix" {
   byte_length = 4
 }
 
+# EC2 Key Pair for SSH access
+resource "aws_key_pair" "app_key" {
+  key_name   = var.key_name
+  public_key = file(var.public_key_path)
+
+  tags = {
+    Name        = "${var.app_name}-key"
+    Environment = var.environment
+  }
+}
+
 # S3 Bucket for CodePipeline artifacts
 resource "aws_s3_bucket" "codepipeline_artifacts" {
   bucket = "${var.app_name}-codepipeline-artifacts-${random_id.bucket_suffix.hex}"

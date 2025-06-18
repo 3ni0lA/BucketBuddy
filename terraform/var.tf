@@ -106,3 +106,22 @@ variable "github_branch" {
   default     = "main"
 }
 
+# SSH Key Configuration
+variable "key_name" {
+  description = "AWS EC2 Key Pair name for SSH access"
+  type        = string
+}
+
+variable "public_key_path" {
+  description = "Path to the public key file for EC2 access"
+  type        = string
+  default     = "~/.ssh/id_rsa.pub"
+}
+
+# Slack Notification Configuration
+variable "slack_webhook_url" {
+  description = "Slack webhook URL for pipeline failure notifications"
+  type        = string
+  sensitive   = true
+}
+
