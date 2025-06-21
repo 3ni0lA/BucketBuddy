@@ -48,7 +48,7 @@ resource "random_id" "bucket_suffix" {
 
 # EC2 Key Pair for SSH access
 resource "aws_key_pair" "app_key" {
-  key_name   = var.key_name
+  key_name   = var.key_pair_name
   public_key = file(var.public_key_path)
 
   tags = {
@@ -616,4 +616,42 @@ resource "aws_lambda_permission" "allow_sns" {
   function_name = aws_lambda_function.slack_notify.function_name
   principal     = "sns.amazonaws.com"
   source_arn    = aws_sns_topic.alerts.arn
+}
+
+resource "aws_lambda_function" "slack_notify" {
+  function_name = "${var.app_name}-slack-notify"
+  handler       = "index.handler"
+  runtime       = "nodejs14.x"
+  role          = aws_iam_role.lambda_exec.arn
+  filename      = "${path.module}/slack_notify.zip" # Path to your zipped Lambda code
+
+  environment {
+    variables = {
+      SLACK_WEBHOOK_URL = var.slack_webhook_url
+    }
+  }
+
+  tags = {
+    Name        = "${var.app_name}-slack-notify"
+    Environment = var.environment
+  }
+}
+
+resource "aws_iam_role" "lambda_exec" {
+  name = "${var.app_name}-lambda-exec"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = {
+        Service = "lambda.amazonaws.com"
+      }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_logs" {
+  role       = aws_iam_role.lambda_exec.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
