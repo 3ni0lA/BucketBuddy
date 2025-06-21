@@ -56,38 +56,38 @@ variable "db_password" {
 }
 
 # External Database Configuration (Supabase)
-variable "external_db_host" {
-  description = "External database host (e.g., Supabase)"
-  type        = string
-  default     = ""
-}
+# variable "external_db_host" {
+#   description = "External database host (e.g., Supabase)"
+#   type        = string
+#   default     = ""
+# }
 
-variable "external_db_port" {
-  description = "External database port"
-  type        = string
-  default     = "5432"
-}
+# variable "external_db_port" {
+#   description = "External database port"
+#   type        = string
+#   default     = "5432"
+# }
 
-variable "supabase_url" {
-  description = "Supabase project URL"
-  type        = string
-  default     = ""
-  sensitive   = true
-}
+# variable "supabase_url" {
+#   description = "Supabase project URL"
+#   type        = string
+#   default     = ""
+#   sensitive   = true
+# }
 
-variable "supabase_anon_key" {
-  description = "Supabase anonymous key"
-  type        = string
-  default     = ""
-  sensitive   = true
-}
+# variable "supabase_anon_key" {
+#   description = "Supabase anonymous key"
+#   type        = string
+#   default     = ""
+#   sensitive   = true
+# }
 
-variable "supabase_service_key" {
-  description = "Supabase service role key"
-  type        = string
-  default     = ""
-  sensitive   = true
-}
+# variable "supabase_service_key" {
+#   description = "Supabase service role key"
+#   type        = string
+#   default     = ""
+#   sensitive   = true
+# }
 
 # GitHub Configuration for CodePipeline
 variable "github_owner" {
@@ -107,7 +107,7 @@ variable "github_branch" {
 }
 
 # SSH Key Configuration
-variable "key_name" {
+variable "key_pair_name" {
   description = "AWS EC2 Key Pair name for SSH access"
   type        = string
 }
