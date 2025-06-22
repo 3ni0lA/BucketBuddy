@@ -1,2 +1,3 @@
 # BucketBuddy
-A bucket list website
+
+A website for your bucket list dreams
