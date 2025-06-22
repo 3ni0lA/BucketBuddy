@@ -2,6 +2,7 @@
 set -e
 
 echo "Installing dependencies for BucketBuddy..."
+mkdir -p /opt/bucketbuddy
 cd /opt/bucketbuddy
 
 # Install production dependencies
