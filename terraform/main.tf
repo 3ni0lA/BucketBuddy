@@ -234,7 +234,8 @@ resource "aws_instance" "app_server" {
   instance_type          = "t2.micro"
   vpc_security_group_ids = [aws_security_group.app_sg.id]
   iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
-  
+  key_name               = aws_key_pair.app_key.key_name
+
   user_data = base64encode(templatefile("${path.module}/user_data.sh", {
     app_name             = var.app_name
     container_port       = var.container_port
