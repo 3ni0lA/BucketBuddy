@@ -1,8 +1,14 @@
 version: 0.0
 os: linux
 files:
-  - source: /
+  - source: server/
     destination: /opt/bucketbuddy
+    overwrite: yes
+  - source: scripts/
+    destination: /opt/bucketbuddy/scripts
+    overwrite: yes
+  - source: shared/
+    destination: /opt/bucketbuddy/shared
     overwrite: yes
 hooks:
   BeforeInstall:
@@ -21,4 +27,3 @@ hooks:
     - location: scripts/validate_service.sh
       timeout: 300
       runas: ec2-user
-
