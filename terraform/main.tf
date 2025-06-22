@@ -394,7 +394,7 @@ resource "aws_codedeploy_deployment_group" "deployment_group" {
     value = var.app_name
   }
 
-  deployment_config_name = "CodeDeployDefault.AllAtOneServerAtOneTime"
+  deployment_config_name = "CodeDeployDefault.AllAtOnce"
 
   tags = {
     Name        = "${var.app_name}-deployment-group"
@@ -542,7 +542,7 @@ resource "aws_codepipeline" "pipeline" {
 
       configuration = {
         ApplicationName     = aws_codedeploy_app.app.name
-        DeploymentGroupName = aws_codedeploy_deployment_group.deployment_group.deployment_group_name
+        DeploymentGroupName = aws_codedeploy_deployment_group.deployment_group_name
       }
     }
   }
@@ -621,7 +621,7 @@ resource "aws_lambda_permission" "allow_sns" {
 resource "aws_lambda_function" "slack_notify" {
   function_name = "${var.app_name}-slack-notify"
   handler       = "index.handler"
-  runtime       = "nodejs14.x"
+  runtime       = "nodejs18.x"
   role          = aws_iam_role.lambda_exec.arn
   filename      = "${path.module}/slack_notify.zip" # Path to your zipped Lambda code
 
