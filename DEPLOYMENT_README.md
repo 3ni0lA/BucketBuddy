@@ -32,6 +32,7 @@ ls -la /tmp/bucketbuddy_backup.sql
 ```
 
 If you need to create a fresh backup:
+
 ```bash
 pg_dump postgres://buddyuser:securepassword@localhost:5432/bucketbuddy > /tmp/bucketbuddy_backup.sql
 ```
@@ -39,26 +40,28 @@ pg_dump postgres://buddyuser:securepassword@localhost:5432/bucketbuddy > /tmp/bu
 ## 🔧 Step 2: Configure Terraform Variables
 
 1. **Copy the example variables file:**
+
 ```bash
 cd terraform
 cp terraform.tfvars.example terraform.tfvars
 ```
 
 2. **Edit terraform.tfvars with your information:**
+
 ```hcl
 # AWS Configuration
 aws_region = "us-west-2"
-alert_email = "devprecious@gmail.com"
+alert_email = "youremail@gmail.com"
 
-# Application Configuration  
+# Application Configuration
 app_name = "bucketbuddy"
 environment = "production"
 container_port = 5000
 
 # Database Configuration
-db_name = "bucketbuddy"
-db_username = "buddyuser"
-db_password = "securepassword"  # Use your actual password
+db_name = "dbname"
+db_username = "username"
+db_password = "yourdbpassword"  # Use your actual password
 
 # GitHub Repository Configuration
 github_owner = "YOUR_GITHUB_USERNAME"
@@ -74,20 +77,21 @@ github_branch = "main"
 CodeStar Connections is AWS's **modern, secure way to connect AWS services to GitHub** without using personal access tokens. This deployment uses the latest AWS recommended approach for GitHub integration.
 
 ### 💰 **Cost: FREE** ✅
+
 - No additional charges for CodeStar connections
 - Stays within your $0/month deployment goal
 - No API call fees or data transfer charges
 
 ### 🔐 **Security Benefits vs Traditional Tokens:**
 
-| **Aspect** | **Old Method (Tokens)** | **CodeStar Connections** |
-|------------|-------------------------|---------------------------|
-| **Security** | Personal tokens in code | Encrypted GitHub App integration |
-| **Permissions** | Broad account access | Repository-specific permissions |
-| **Expiration** | Manual rotation needed | Automatic renewal |
-| **Audit Trail** | Limited visibility | Full AWS CloudTrail integration |
-| **Setup** | Token management | One-time browser authorization |
-| **AWS Status** | Deprecated ⚠️ | Recommended ✅ |
+| **Aspect**      | **Old Method (Tokens)** | **CodeStar Connections**         |
+| --------------- | ----------------------- | -------------------------------- |
+| **Security**    | Personal tokens in code | Encrypted GitHub App integration |
+| **Permissions** | Broad account access    | Repository-specific permissions  |
+| **Expiration**  | Manual rotation needed  | Automatic renewal                |
+| **Audit Trail** | Limited visibility      | Full AWS CloudTrail integration  |
+| **Setup**       | Token management        | One-time browser authorization   |
+| **AWS Status**  | Deprecated ⚠️           | Recommended ✅                   |
 
 ### 🚀 **How It Works:**
 
@@ -103,6 +107,7 @@ GitHub Push → CodeStar Connection → CodePipeline → CodeBuild → CodeDeplo
 ### 🛠️ **Setup Process (One-Time):**
 
 **Phase 1: Terraform Creates Connection (Automated)**
+
 ```bash
 # This happens automatically during terraform apply
 # Creates connection in "PENDING" status
@@ -110,6 +115,7 @@ GitHub Push → CodeStar Connection → CodePipeline → CodeBuild → CodeDeplo
 
 **Phase 2: Manual Authorization (One-Time, 2 minutes)**
 After terraform apply, you'll see this in the outputs:
+
 ```
 🚀 DEPLOYMENT COMPLETE! Next steps:
 
@@ -120,15 +126,17 @@ After terraform apply, you'll see this in the outputs:
 ```
 
 **Step-by-step activation:**
+
 1. Open the AWS Console link from terraform outputs
 2. Find your connection: `bucketbuddy-github-connection`
 3. Click "Update pending connection"
 4. Browser will open GitHub authorization page
-5. Click "Authorize AWS CodeStar" 
+5. Click "Authorize AWS CodeStar"
 6. Select your repository: `BucketBuddy`
 7. Connection status changes to "Available" ✅
 
 **Phase 3: Automatic Forever After**
+
 - Every GitHub push triggers pipeline automatically
 - No token expiration issues
 - No maintenance required
@@ -136,22 +144,26 @@ After terraform apply, you'll see this in the outputs:
 ### 🎪 **Integration Benefits:**
 
 **✅ Enhanced Security:**
+
 - No secrets stored in Terraform code
 - GitHub Apps use OAuth 2.0 with fine-grained permissions
 - Automatic credential rotation
 - Full audit trail in AWS CloudTrail
 
 **✅ Better Reliability:**
+
 - More stable than token-based authentication
 - GitHub's recommended approach for CI/CD
 - Reduced risk of authentication failures
 
 **✅ Future-Proof:**
+
 - AWS's long-term solution for source control integration
 - Eliminates deprecation warnings
 - Supports latest GitHub features
 
 **✅ Simplified Management:**
+
 - No token rotation schedules
 - No credential management
 - One-time setup, lifetime benefits
@@ -172,17 +184,20 @@ graph LR
 ### 🔍 **What You'll See:**
 
 **In AWS Console:**
+
 - CodeStar connection: `bucketbuddy-github-connection`
 - Status: `Available` (after authorization)
 - Repository: `YOUR_USERNAME/BucketBuddy`
 - Events: All push/pull events logged
 
 **In CodePipeline:**
+
 - Source stage uses `CodeStarSourceConnection`
 - Automatic triggers on main branch pushes
 - Full commit information in pipeline history
 
 **Security Features:**
+
 - Connection encrypted at rest and in transit
 - GitHub webhook signatures verified
 - IAM permissions control access
@@ -199,6 +214,7 @@ graph LR
 ### 🚨 **Important Note:**
 
 **No GitHub Token Required!** 🎉
+
 - Remove any `github_token` from your `terraform.tfvars`
 - The connection handles authentication automatically
 - More secure than storing tokens in configuration files
@@ -206,8 +222,9 @@ graph LR
 ---
 
 **🔄 The two-minute browser authorization is worth:**
+
 - ✅ Eliminating security warnings
-- ✅ Future-proofing your deployment  
+- ✅ Future-proofing your deployment
 - ✅ Better security posture
 - ✅ Zero ongoing maintenance
 
@@ -254,12 +271,14 @@ ssh ec2-user@YOUR_EC2_IP 'cd /opt/bucketbuddy && ./restore_data.sh bucketbuddy_b
 ## 🔄 Step 7: Set Up Automatic Deployments
 
 Your repository now includes all necessary CI/CD files:
+
 - ✅ `buildspec.yml` - CodeBuild configuration
-- ✅ `appspec.yml` - CodeDeploy configuration  
+- ✅ `appspec.yml` - CodeDeploy configuration
 - ✅ `scripts/` - Deployment scripts
 - ✅ Updated activity tracking with analytics
 
 **Push to trigger first deployment:**
+
 ```bash
 git add .
 git commit -m "Add CI/CD configuration and user analytics"
@@ -271,6 +290,7 @@ git push origin main
 Your deployment now includes comprehensive user activity tracking:
 
 ### 🔍 What's Being Tracked:
+
 - User logins/logouts
 - Bucket list item creation/updates/deletions
 - Page views and navigation
@@ -279,12 +299,15 @@ Your deployment now includes comprehensive user activity tracking:
 - Error tracking
 
 ### 📊 Analytics Endpoints:
+
 - `GET /api/analytics/user` - Individual user analytics
 - `GET /api/analytics/system` - System-wide analytics
 - `POST /api/analytics/track` - Manual event tracking
 
 ### 🎯 Analytics Dashboard Integration:
+
 The tracking data is stored in your PostgreSQL database and can be:
+
 - Exported to CSV for analysis
 - Integrated with your existing dashboard
 - Used for user behavior insights
@@ -300,6 +323,7 @@ The tracking data is stored in your PostgreSQL database and can be:
 ## 🛠️ Management Commands
 
 ### On the EC2 Server:
+
 ```bash
 # SSH into server
 ssh ec2-user@YOUR_EC2_IP
@@ -324,6 +348,7 @@ cat deployment_status
 ```
 
 ### Local Management:
+
 ```bash
 # Update infrastructure
 terraform plan
@@ -335,17 +360,17 @@ terraform destroy
 
 ## 💰 Cost Breakdown (FREE TIER)
 
-| Service | Usage | Cost |
-|---------|-------|------|
-| EC2 t2.micro | 750 hours/month | **$0** |
-| EBS Storage | 20GB | **$0** |
-| CodePipeline | 1 pipeline | **$0** |
-| CodeBuild | 100 build minutes | **$0** |
-| CodeDeploy | On-premises | **$0** |
-| CloudWatch | 10 metrics, 5GB logs | **$0** |
-| S3 Storage | 5GB | **$0** |
-| Data Transfer | 15GB out | **$0** |
-| **Total Monthly Cost** | | **$0** |
+| Service                | Usage                | Cost   |
+| ---------------------- | -------------------- | ------ |
+| EC2 t2.micro           | 750 hours/month      | **$0** |
+| EBS Storage            | 20GB                 | **$0** |
+| CodePipeline           | 1 pipeline           | **$0** |
+| CodeBuild              | 100 build minutes    | **$0** |
+| CodeDeploy             | On-premises          | **$0** |
+| CloudWatch             | 10 metrics, 5GB logs | **$0** |
+| S3 Storage             | 5GB                  | **$0** |
+| Data Transfer          | 15GB out             | **$0** |
+| **Total Monthly Cost** |                      | **$0** |
 
 ## 🔄 Automated Workflow
 
@@ -380,12 +405,14 @@ terraform destroy
 ### Common Issues:
 
 1. **Pipeline fails:**
+
    ```bash
    # Check CloudWatch logs
    aws logs describe-log-groups --log-group-name-prefix "/aws/codebuild/bucketbuddy"
    ```
 
 2. **Application not responding:**
+
    ```bash
    ssh ec2-user@YOUR_EC2_IP
    pm2 logs bucketbuddy
@@ -393,6 +420,7 @@ terraform destroy
    ```
 
 3. **Database connection issues:**
+
    ```bash
    docker exec bucketbuddy-postgres pg_isready -U buddyuser
    docker-compose logs postgres
@@ -426,4 +454,3 @@ terraform destroy
 ---
 
 **🎊 Congratulations!** You now have a **completely free**, production-ready CI/CD pipeline for BucketBuddy with built-in user activity tracking and automatic deployments!
-
