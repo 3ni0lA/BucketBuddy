@@ -624,7 +624,7 @@ resource "aws_lambda_function" "slack_notify" {
   handler       = "index.handler"
   runtime       = "nodejs18.x"
   role          = aws_iam_role.lambda_exec.arn
-  filename      = "${path.module}/slack_notify.zip" # Path to your zipped Lambda code
+  filename      = "${path.module}/slack_notifier.zip" # Path to your zipped Lambda code
 
   environment {
     variables = {
