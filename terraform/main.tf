@@ -483,7 +483,7 @@ resource "aws_codestarconnections_connection" "github" {
   }
 }
 
-# CodePipeline
+# CodePipeline section
 resource "aws_codepipeline" "pipeline" {
   name     = "${var.app_name}-pipeline"
   role_arn = aws_iam_role.codepipeline_role.arn
