@@ -17,8 +17,8 @@ NODE_ENV=production
 PORT=5000
 SESSION_SECRET=$(openssl rand -hex 32)
 DATABASE_URL=postgres://buddyuser:securepassword@localhost:5432/bucketbuddy
-GITHUB_CLIENT_ID=your_github_client_id
-GITHUB_CLIENT_SECRET=your_github_client_secret
+GITHUB_CLIENT_ID=Ov23liTv1aLroZBBI7SA
+GITHUB_CLIENT_SECRET=16144bff323a09530ec4150b9fda88f5219ca0e7
 GITHUB_CALLBACK_URL=http://$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4):5000/api/auth/github/callback
 VITE_API_URL=http://$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4):5000
 EOF
