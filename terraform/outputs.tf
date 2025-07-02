@@ -59,6 +59,18 @@ output "github_connection_status" {
   value       = aws_codestarconnections_connection.github.connection_status
 }
 
+output "rds_endpoint" {
+  description = "RDS PostgreSQL endpoint"
+  value       = aws_db_instance.postgres.endpoint
+  sensitive   = true
+}
+
+output "database_url" {
+  description = "Full database connection URL"
+  value       = "postgres://${var.db_username}:${var.db_password}@${aws_db_instance.postgres.endpoint}/${var.db_name}"
+  sensitive   = true
+}
+
 output "next_steps" {
   description = "Important next steps after deployment"
   value = <<-EOT
@@ -69,15 +81,20 @@ output "next_steps" {
        - Find connection: ${aws_codestarconnections_connection.github.name}
        - Click "Update pending connection" and authorize with GitHub
     
-    2. TRIGGER FIRST DEPLOYMENT:
+    2. UPDATE DATABASE_URL:
+       - SSH into EC2: ssh -i ~/.ssh/your-key.pem ec2-user@${aws_eip.app_eip.public_ip}
+       - Update DATABASE_URL in /opt/bucketbuddy/.env to use RDS endpoint
+       - DATABASE_URL=postgres://${var.db_username}:${var.db_password}@${aws_db_instance.postgres.endpoint}/${var.db_name}
+    
+    3. TRIGGER FIRST DEPLOYMENT:
        - Push any change to your GitHub repository
        - Or manually start pipeline: ${aws_codepipeline.pipeline.name}
     
-    3. ACCESS YOUR APPLICATION:
+    4. ACCESS YOUR APPLICATION:
        - URL: http://${aws_eip.app_eip.public_ip}
        - SSH: ssh -i ~/.ssh/your-key.pem ec2-user@${aws_eip.app_eip.public_ip}
     
-    4. MONITOR:
+    5. MONITOR:
        - CodePipeline: ${aws_codepipeline.pipeline.name}
        - CloudWatch Logs: /aws/ec2/${var.app_name}
        - SNS Alerts: Configured for ${var.alert_email}

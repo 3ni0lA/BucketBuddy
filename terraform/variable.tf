@@ -26,7 +26,7 @@ variable "container_port" {
 variable "alert_email" {
   description = "Email address for CloudWatch alerts"
   type        = string
-  default     = "devprecious@gmail.com"
+  # No default - must be provided
 }
 
 # Database Configuration
