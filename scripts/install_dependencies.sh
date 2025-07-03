@@ -4,7 +4,7 @@ set -e
 echo "Installing dependencies for BucketBuddy..."
 
 # Source environment to get Node.js PATH
-source /home/ec2-user/.bashrc || true
+source /home/ubuntu/.bashrc || true
 export PATH=/usr/bin:/usr/local/bin:$PATH
 
 # Verify Node.js and npm are available
@@ -18,8 +18,8 @@ if ! command -v node &> /dev/null || ! command -v npm &> /dev/null; then
     # Install Node.js using NVM (works better with Amazon Linux 2)
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
     
-    # Source NVM
-    export NVM_DIR="/home/ec2-user/.nvm"
+    # Source NVM  
+    export NVM_DIR="/home/ubuntu/.nvm"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
     
@@ -35,16 +35,17 @@ if ! command -v node &> /dev/null || ! command -v npm &> /dev/null; then
     echo "Node.js version after install: $(node --version 2>/dev/null || echo 'still not found')"
     echo "NPM version after install: $(npm --version 2>/dev/null || echo 'still not found')"
     
-    # If still not found, try Amazon's official package
+    # If still not found, try Ubuntu's official package
     if ! command -v node &> /dev/null; then
-        echo "NVM installation failed, trying Amazon Linux Node.js package..."
-        sudo yum install -y nodejs npm
+        echo "NVM installation failed, trying Ubuntu Node.js package..."
+        sudo apt update
+        sudo apt install -y nodejs npm
     fi
 fi
 
 # Create application directory
 sudo mkdir -p /opt/bucketbuddy
-sudo chown ec2-user:ec2-user /opt/bucketbuddy
+sudo chown ubuntu:ubuntu /opt/bucketbuddy
 cd /opt/bucketbuddy
 
 # PM2 should already be installed globally by user_data.sh
@@ -59,8 +60,8 @@ fi
 # Create PM2 directories
 sudo mkdir -p /var/log/pm2
 sudo mkdir -p /var/run/pm2
-sudo chown ec2-user:ec2-user /var/log/pm2
-sudo chown ec2-user:ec2-user /var/run/pm2
+sudo chown ubuntu:ubuntu /var/log/pm2
+sudo chown ubuntu:ubuntu /var/run/pm2
 
 # Install production dependencies
 echo "Installing Node.js dependencies..."

@@ -2,62 +2,53 @@
 
 # Log everything for debugging
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
-echo "Starting BucketBuddy server setup..."
+echo "Starting BucketBuddy server setup on Ubuntu 22.04..."
 
 # Update system
-yum update -y
+apt update -y
+apt upgrade -y
 
 # Install essential packages
-yum install -y git curl wget unzip postgresql15-client ruby
+apt install -y git curl wget unzip postgresql-client ruby-full awscli
 
-# Install Node.js 18 via NVM (compatible with Amazon Linux 2)
-echo "Installing Node.js via NVM..."
-sudo -u ec2-user bash << 'EOF'
-cd /home/ec2-user
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-export NVM_DIR="/home/ec2-user/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-nvm install 18
-nvm use 18
-nvm alias default 18
-echo 'export NVM_DIR="/home/ec2-user/.nvm"' >> /home/ec2-user/.bashrc
-echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> /home/ec2-user/.bashrc
-echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"' >> /home/ec2-user/.bashrc
-EOF
+# Install Node.js 18 directly via NodeSource (Ubuntu has newer glibc)
+echo "Installing Node.js 18 via NodeSource for Ubuntu..."
+curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+apt-get install -y nodejs
 
-# Source the ec2-user environment to get Node.js
-sudo -u ec2-user bash << 'EOF'
-source /home/ec2-user/.bashrc
+# Verify installation
 echo "Node.js version: $(node --version)"
 echo "NPM version: $(npm --version)"
+
 # Install PM2 globally
 npm install -g pm2
 echo "PM2 version: $(pm2 --version)"
-EOF
 
 # Install Docker for PostgreSQL
-yum install -y docker
+apt install -y docker.io
 systemctl start docker
 systemctl enable docker
-usermod -a -G docker ec2-user
+usermod -a -G docker ubuntu
 
 # Install Docker Compose
 curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
 
-# Install CodeDeploy agent
-cd /home/ec2-user
+# Install CodeDeploy agent for Ubuntu
+cd /home/ubuntu
 wget https://aws-codedeploy-us-west-2.s3.us-west-2.amazonaws.com/latest/install
 chmod +x ./install
 ./install auto
 
 # Start CodeDeploy agent
-service codedeploy-agent start
-chkconfig codedeploy-agent on
+systemctl start codedeploy-agent
+systemctl enable codedeploy-agent
 
 # Setup CloudWatch logs agent
-yum install -y awslogs
+apt install -y awscli
+# Install CloudWatch agent
+wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
+dpkg -i amazon-cloudwatch-agent.deb
 cat << EOF > /etc/awslogs/awslogs.conf
 [general]
 state_file = /var/lib/awslogs/agent-state
@@ -253,7 +244,7 @@ echo "0 2 * * * /opt/${app_name}/backup_db.sh" > /tmp/crontab_backup
 crontab /tmp/crontab_backup
 
 # Install and configure Nginx
-yum install -y nginx
+apt install -y nginx
 
 # Configure Nginx
 cat << EOF > /etc/nginx/conf.d/${app_name}.conf
@@ -304,13 +295,13 @@ EOF
 nginx -t && systemctl start nginx && systemctl enable nginx
 
 # Set proper ownership
-chown -R ec2-user:ec2-user /opt/${app_name}
+chown -R ubuntu:ubuntu /opt/${app_name}
 
 # Create PM2 startup script
-sudo -u ec2-user bash << 'USEREOF'
+sudo -u ubuntu bash << 'USEREOF'
 cd /opt/${app_name}
 pm2 startup
-EOF
+UEOF
 
 # Create deployment status file
 echo "ready" > /opt/${app_name}/deployment_status
