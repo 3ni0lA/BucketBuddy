@@ -73,6 +73,7 @@ output "database_url" {
 
 output "next_steps" {
   description = "Important next steps after deployment"
+  sensitive   = true
   value = <<-EOT
     🚀 DEPLOYMENT COMPLETE! Next steps:
     
@@ -92,7 +93,7 @@ output "next_steps" {
     
     4. ACCESS YOUR APPLICATION:
        - URL: http://${aws_eip.app_eip.public_ip}
-       - SSH: ssh -i ~/.ssh/your-key.pem ec2-user@${aws_eip.app_eip.public_ip}
+       - SSH: ssh -i ~/.ssh/your-key.perm ec2-user@${aws_eip.app_eip.public_ip}
     
     5. MONITOR:
        - CodePipeline: ${aws_codepipeline.pipeline.name}

@@ -124,8 +124,8 @@ resource "aws_security_group" "rds_sg" {
 resource "aws_db_instance" "postgres" {
   identifier     = "${var.app_name}-postgres"
   engine         = "postgres"
-  engine_version = "13.13"
-  instance_class = "db.t2.micro"
+  engine_version = "13.21"
+  instance_class = "db.t3.micro"
   
   allocated_storage     = 20
   max_allocated_storage = 100
