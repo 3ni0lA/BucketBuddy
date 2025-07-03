@@ -3,14 +3,39 @@ set -e
 
 echo "Installing dependencies for BucketBuddy..."
 
+# Source environment to get Node.js PATH
+source /home/ec2-user/.bashrc || true
+export PATH=/usr/bin:$PATH
+
+# Verify Node.js and npm are available
+echo "Node.js version: $(node --version 2>/dev/null || echo 'not found')"
+echo "NPM version: $(npm --version 2>/dev/null || echo 'not found')"
+
+# If npm is not found, try to source it manually
+if ! command -v npm &> /dev/null; then
+    echo "NPM not found in PATH, trying to locate..."
+    export PATH="/usr/bin:/usr/local/bin:$PATH"
+    # Also try the common Node.js installation path
+    if [ -f "/usr/bin/npm" ]; then
+        export PATH="/usr/bin:$PATH"
+    elif [ -f "/usr/local/bin/npm" ]; then
+        export PATH="/usr/local/bin:$PATH"
+    fi
+fi
+
 # Create application directory
 sudo mkdir -p /opt/bucketbuddy
 sudo chown ec2-user:ec2-user /opt/bucketbuddy
 cd /opt/bucketbuddy
 
-# Install global dependencies as ec2-user
-echo "Installing global dependencies..."
-npm install -g pm2
+# PM2 should already be installed globally by user_data.sh
+echo "Checking PM2 installation..."
+if ! command -v pm2 &> /dev/null; then
+    echo "PM2 not found, installing..."
+    npm install -g pm2
+else
+    echo "PM2 already installed: $(pm2 --version)"
+fi
 
 # Create PM2 directories
 sudo mkdir -p /var/log/pm2
