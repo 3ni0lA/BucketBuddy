@@ -13,26 +13,32 @@ echo "NPM version: $(npm --version 2>/dev/null || echo 'not found')"
 
 # If Node.js is not found, install it
 if ! command -v node &> /dev/null || ! command -v npm &> /dev/null; then
-    echo "Node.js/NPM not found, installing Node.js 18..."
+    echo "Node.js/NPM not found, installing Node.js via NVM (compatible with Amazon Linux 2)..."
     
-    # Install Node.js using NodeSource repository
-    curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo bash -
-    sudo yum install -y nodejs
+    # Install Node.js using NVM (works better with Amazon Linux 2)
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+    
+    # Source NVM
+    export NVM_DIR="/home/ec2-user/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+    
+    # Install and use Node.js 18
+    nvm install 18
+    nvm use 18
+    nvm alias default 18
+    
+    # Add Node.js to PATH for current session
+    export PATH="$NVM_DIR/versions/node/$(nvm version)/bin:$PATH"
     
     # Verify installation
     echo "Node.js version after install: $(node --version 2>/dev/null || echo 'still not found')"
     echo "NPM version after install: $(npm --version 2>/dev/null || echo 'still not found')"
     
-    # If still not found, try alternative installation
+    # If still not found, try Amazon's official package
     if ! command -v node &> /dev/null; then
-        echo "NodeSource installation failed, trying NVM..."
-        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-        source /home/ec2-user/.bashrc
-        export NVM_DIR="/home/ec2-user/.nvm"
-        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-        nvm install 18
-        nvm use 18
-        nvm alias default 18
+        echo "NVM installation failed, trying Amazon Linux Node.js package..."
+        sudo yum install -y nodejs npm
     fi
 fi
 

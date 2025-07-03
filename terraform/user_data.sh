@@ -10,17 +10,31 @@ yum update -y
 # Install essential packages
 yum install -y git curl wget unzip postgresql15-client ruby
 
-# Install Node.js 18 (LTS)
-curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
-yum install -y nodejs
+# Install Node.js 18 via NVM (compatible with Amazon Linux 2)
+echo "Installing Node.js via NVM..."
+sudo -u ec2-user bash << 'EOF'
+cd /home/ec2-user
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+export NVM_DIR="/home/ec2-user/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+nvm install 18
+nvm use 18
+nvm alias default 18
+echo 'export NVM_DIR="/home/ec2-user/.nvm"' >> /home/ec2-user/.bashrc
+echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> /home/ec2-user/.bashrc
+echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"' >> /home/ec2-user/.bashrc
+EOF
 
-# Verify Node.js installation
+# Source the ec2-user environment to get Node.js
+sudo -u ec2-user bash << 'EOF'
+source /home/ec2-user/.bashrc
 echo "Node.js version: $(node --version)"
 echo "NPM version: $(npm --version)"
-
 # Install PM2 globally
 npm install -g pm2
 echo "PM2 version: $(pm2 --version)"
+EOF
 
 # Install Docker for PostgreSQL
 yum install -y docker
