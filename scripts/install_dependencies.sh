@@ -5,21 +5,34 @@ echo "Installing dependencies for BucketBuddy..."
 
 # Source environment to get Node.js PATH
 source /home/ec2-user/.bashrc || true
-export PATH=/usr/bin:$PATH
+export PATH=/usr/bin:/usr/local/bin:$PATH
 
 # Verify Node.js and npm are available
 echo "Node.js version: $(node --version 2>/dev/null || echo 'not found')"
 echo "NPM version: $(npm --version 2>/dev/null || echo 'not found')"
 
-# If npm is not found, try to source it manually
-if ! command -v npm &> /dev/null; then
-    echo "NPM not found in PATH, trying to locate..."
-    export PATH="/usr/bin:/usr/local/bin:$PATH"
-    # Also try the common Node.js installation path
-    if [ -f "/usr/bin/npm" ]; then
-        export PATH="/usr/bin:$PATH"
-    elif [ -f "/usr/local/bin/npm" ]; then
-        export PATH="/usr/local/bin:$PATH"
+# If Node.js is not found, install it
+if ! command -v node &> /dev/null || ! command -v npm &> /dev/null; then
+    echo "Node.js/NPM not found, installing Node.js 18..."
+    
+    # Install Node.js using NodeSource repository
+    curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo bash -
+    sudo yum install -y nodejs
+    
+    # Verify installation
+    echo "Node.js version after install: $(node --version 2>/dev/null || echo 'still not found')"
+    echo "NPM version after install: $(npm --version 2>/dev/null || echo 'still not found')"
+    
+    # If still not found, try alternative installation
+    if ! command -v node &> /dev/null; then
+        echo "NodeSource installation failed, trying NVM..."
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+        source /home/ec2-user/.bashrc
+        export NVM_DIR="/home/ec2-user/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+        nvm install 18
+        nvm use 18
+        nvm alias default 18
     fi
 fi
 
